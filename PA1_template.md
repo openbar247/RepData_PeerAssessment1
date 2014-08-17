@@ -2,7 +2,8 @@
 
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 library(plyr)
 library(lattice)
 filename <- "activity"
@@ -29,18 +30,30 @@ dataActMonClean <- dataActMon[!is.na(dataActMon$steps),]
 
 
 ## What is mean total number of steps taken per day?
-```{r fig.width=7, fig.height=6}
+
+```r
 # Make a histogram of the total number of steps taken each day
 dataActMonSum <- tapply(dataActMonClean$steps, dataActMonClean$date, sum)
 hist(as.numeric(dataActMonSum), col="green", xlab="steps", main="Total Number of Steps", cex=0.75)
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
+```r
 # Calculate and report the mean and median total number of steps taken per day
 summary(dataActMonSum)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##      41    8840   10800   10800   13300   21200       8
 ```
 
 
 
 ## What is the average daily activity pattern?
-```{r fig.width=7, fig.height=6}
+
+```r
 # Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 dataActMonIntervals <- unique(dataActMonClean$interval)
 dataActMonIntervalsRelevant <- c(0, 500, 1000, 1500, 2000)
@@ -48,16 +61,33 @@ dataActMonMean <- tapply(dataActMonClean$steps, dataActMonClean$interval, mean)
 plot(dataActMonIntervals, dataActMonMean, type="l", xlab="interval", ylab="average number of steps taken", main="Time Series Plot", cex=0.75, col="green", axes=F)
 axis(1, at=dataActMonIntervalsRelevant, labels=dataActMonIntervalsRelevant)
 axis(2)
+```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
+```r
 # Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 paste("5-minute interval:", rownames(dataActMonMean)[arrayInd(which.max(dataActMonMean), dim(dataActMonMean))], "contains the maximum number of steps:", max(dataActMonMean))
+```
+
+```
+## [1] "5-minute interval: 835 contains the maximum number of steps: 206.169811320755"
 ```
 
 
 
 ## Imputing missing values
-```{r fig.width=7, fig.height=6}
+
+```r
 # Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 paste("Total number of rows with NAs:", nrow(dataActMon) - nrow(dataActMonClean))
+```
+
+```
+## [1] "Total number of rows with NAs: 2304"
+```
+
+```r
 # Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 # Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
@@ -73,14 +103,25 @@ dataActMonInterp <- ddply(dataActMon, ~ interval, transform, steps=interpolate.s
 # Make a histogram of the total number of steps taken each day
 dataActMonInterpSum <- tapply(dataActMonInterp$steps, dataActMonInterp$date, sum)
 hist(as.numeric(dataActMonInterpSum), col="green", xlab="steps", main="Total Number of Steps", cex=0.75)
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+```r
 # Calculate and report the mean and median total number of steps taken per day
 summary(dataActMonInterpSum)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    9820   10800   10800   12800   21200
 ```
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r fig.width=7, fig.height=6}
+
+```r
 dataActMonInterp$day <- weekdays(as.Date(dataActMonInterp$date))
 weekendLbl <- 'Weekend'
 weekdayLbl <- 'Weekday'
@@ -110,4 +151,6 @@ for(day in colnames(dataActMonInterpMean))
 dataActMonTmpDf <- data.frame(dataActMonTmpMat, stringsAsFactors=F)
 xyplot(as.numeric(dataActMonTmpDf$step.mean) ~ as.numeric(dataActMonTmpDf$interval) | factor(dataActMonTmpDf$day, levels=c(weekdayLbl, weekendLbl)), layout = c(1, 2), type="l", xlab="Interval", ylab="Number of steps")
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
